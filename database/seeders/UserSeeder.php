@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         //     'password' => 'example'
         // ]);
         User::factory()->count(1)
-            ->create(['password' => 'admin1234'])
+            ->create()
             ->each(
                 function($user) {
                     $user->assignRole('admin');
