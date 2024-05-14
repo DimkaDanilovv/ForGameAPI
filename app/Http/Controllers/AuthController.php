@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-// use app\Models\User;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 
@@ -28,6 +28,8 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
+
+        $user->assignRole("user");
 
         if ($token = $this->guard()->attempt($credentials)) {
             return $this->respondWithToken($token);
