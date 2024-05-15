@@ -39,3 +39,7 @@ Route::group(['middleware' => ['role:admin'], 'prefix' => 'admin'],
     function($api) {
         $api->get('/users', 'App\Http\Controllers\Admin\AdminUserController@index');
 });
+
+Route::get('deleteFaction', 'FactionController@deleteFaction');
+Route::get('createFaction', 'FactionController@createFaction');
+Route::get('editFaction', 'FactionController@editFaction');
