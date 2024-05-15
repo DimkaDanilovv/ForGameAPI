@@ -27,18 +27,18 @@ class AdminUserController extends Controller
         //
     }
 
-    // public function addUser(Request $request)
-    // {
-    //     $credentials = $request->only('name','email', 'password');
+    public function addUser(Request $request)
+    {
+        $credentials = $request->only('name','email', 'password');
 
-    //     $addUser = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => bcrypt($request->password),
-    //     ]);
+        $addUser = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
 
-    //     $user->assignRole("moderator");
-    // }
+        $user->assignRole("moderator");
+    }
 
     /**
      * Display the specified resource.

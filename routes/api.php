@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+// use App\Http\Controllers\FactionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,6 +41,11 @@ Route::group(['middleware' => ['role:admin'], 'prefix' => 'admin'],
         $api->get('/users', 'App\Http\Controllers\Admin\AdminUserController@index');
 });
 
-Route::get('deleteFaction', 'FactionController@deleteFaction');
-Route::get('createFaction', 'FactionController@createFaction');
-Route::get('editFaction', 'FactionController@editFaction');
+Route::delete('deleteFaction', 'FactionController@deleteFaction');
+Route::post('createFaction', 'FactionController@createFaction');
+Route::put('editFaction', 'FactionController@editFaction');
+Route::post('viewFaction', 'FactionController@viewFaction');
+
+Route::post('addUser', 'AdminUserController@addUser');
+
+

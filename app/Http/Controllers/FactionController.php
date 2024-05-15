@@ -12,7 +12,10 @@ class FactionController extends Controller
      */
     public function viewFaction() //функция просмотра не готова
     {
-        return view ('faction.index');
+        if (! $factions = Faction::all()) {
+            throw new NotFoundHttpException('Factions not found');
+        }
+        return $factions;
     }
 
     /**
@@ -82,12 +85,30 @@ class FactionController extends Controller
 
     public function editFaction(Request $request)
     {
-        if ($request->methood === 'POST') {
-        Faction::where("id", $request->get('id'))->update([
-            'name' => $request->get('name'),
-            'title' => $request->get('title'),
-            'description' => $request->get('description'),
-        ]);    
+    if ($request->isMethod('put')) {
+
+        $validatedData = $request->validate([
+            'id' => 'required|integer',
+            'name' => 'required|string',
+            'title' => 'required|string',
+            'description' => 'required|string',
+        ]);
+
+        $faction = Faction::find($validatedData['id']);
+
+        if ($faction) {
+            $faction->update([
+                'name' => $validatedData['name'],
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+            ]);
+            return response()->json(['message' => 'Фракция успешно обновлена.', 'faction' => $faction], 200);
+        } else {
+            return response()->json(['error' => 'Фракция не найдена.'], 404);
         }
+    } else {
+        return response()->json(['error' => 'Неверный метод запроса. Используйте метод PUT.'], 405);
     }
+}
+
 }
