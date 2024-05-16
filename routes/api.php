@@ -58,4 +58,9 @@ Route::post('createLocation', 'LocationController@createLocation');
 Route::put('editLocation', 'LocationController@editLocation');
 Route::post('viewLocation', 'LocationController@viewLocation');
 
+Route::delete('deleteBoss', 'BossController@deleteBoss');
+Route::post('createBoss', 'BossController@createBoss');
+Route::put('editBoss', 'BossController@editBoss');
+Route::post('viewBoss', 'BossController@viewBoss');
+
 
