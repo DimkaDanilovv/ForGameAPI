@@ -44,12 +44,12 @@ class RolesAndPermissionsSeeder extends Seeder
         $viewFaction = 'view faction';
 
         // $readClass = 'read class';
-        $deleteClass = 'delete class';
-        $editClass = 'edit class';
-        $createClass = 'create class';
+        $deletePlayerClass = 'delete player_class';
+        $editPlayerClass = 'edit player_class';
+        $createPlayerClass = 'create player_class';
         // $sortingClass = 'sorting class';
         // $filtrateClass = 'filtrate class';
-        $viewClass = 'view class';
+        $viewPlayerClass = 'view player_class';
 
         $addUser = 'add user';
 
@@ -68,10 +68,10 @@ class RolesAndPermissionsSeeder extends Seeder
         Permission::create(['name' => $createFaction]);
         Permission::create(['name' => $viewFaction]);
 
-        Permission::create(['name' => $deleteClass]);
-        Permission::create(['name' => $editClass]);
-        Permission::create(['name' => $createClass]);
-        Permission::create(['name' => $viewClass]);
+        Permission::create(['name' => $deletePlayerClass]);
+        Permission::create(['name' => $editPlayerClass]);
+        Permission::create(['name' => $createPlayerClass]);
+        Permission::create(['name' => $viewPlayerClass]);
 
         Permission::create(['name' => $addUser]);
 
@@ -97,10 +97,10 @@ class RolesAndPermissionsSeeder extends Seeder
                 $editFaction,
                 $createFaction,
                 $viewFaction,
-                $deleteClass,
-                $editClass,
-                $createClass,
-                $viewClass,
+                $deletePlayerClass,
+                $editPlayerClass,
+                $createPlayerClass,
+                $viewPlayerClass,
 
             ]);
 
@@ -109,7 +109,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 $viewLocation,
                 $viewBoss,
                 $viewFaction,
-                $viewClass,
+                $viewPlayerClass,
             ]);
 
     }

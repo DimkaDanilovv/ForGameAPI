@@ -48,4 +48,9 @@ Route::post('viewFaction', 'FactionController@viewFaction');
 
 Route::post('addUser', 'AdminUserController@addUser');
 
+Route::delete('deletePlayerClass', 'ClassController@deletePlayerClass');
+Route::post('createPlayerClass', 'ClassController@createPlayerClass');
+Route::put('editPlayerClass', 'ClassController@editPlayerClass');
+Route::post('viewPlayerClass', 'ClassController@viewPlayerClass');
+
 
