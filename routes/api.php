@@ -53,4 +53,9 @@ Route::post('createPlayerClass', 'ClassController@createPlayerClass');
 Route::put('editPlayerClass', 'ClassController@editPlayerClass');
 Route::post('viewPlayerClass', 'ClassController@viewPlayerClass');
 
+Route::delete('deleteLocation', 'LocationController@deleteLoction');
+Route::post('createLocation', 'LocationController@createLocation');
+Route::put('editLocation', 'LocationController@editLocation');
+Route::post('viewLocation', 'LocationController@viewLocation');
+
 
