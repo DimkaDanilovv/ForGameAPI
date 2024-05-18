@@ -2,36 +2,66 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\Boss\GetBossRequest;
+use App\Http\Requests\Boss\StoreBossRequest;
+use App\Http\Requests\Boss\UpdateBossRequest;
+use App\Http\Services\FileService;
 use App\Models\Boss;
+use Illuminate\Http\Request;
 
 class BossController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function viewBoss() //функция просмотра не готова
+    private $fileService;
+
+    public function __construct()
     {
-        if (! $bosses = Boss::all()) {
-            throw new NotFoundHttpException('Bosses not found');
-        }
-        return $bosses;
+        $this->fileService = new FileService();
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of the resource.
      */
-    public function create()
+    public function index(GetBossRequest $request)
     {
-        //
+        $bosses = Boss::query();
+
+        if ($keyword = $request->search) {
+            $bosses->where(function ($query) use ($keyword) {
+                $query
+                    ->where("title", "like", "%$keyword%")
+                    ->orWhere("name", "like", "%$keyword%")
+                    ->orWhere("description", "like", "%$keyword%");
+            });
+        }
+
+        $bosses->orderBy(
+            $request->input("order", "title"),
+            $request->input("direction", "asc")
+        );
+
+        $perPage = $request->input("per_page", 10);
+        $page = $request->input("page", 1);
+
+        $bosses = $bosses->paginate($perPage, ["*"], "page", $page);
+
+        return response()->json($bosses);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBossRequest $request)
     {
-        //
+        $pathToFolder = "images/bosses/";
+        $image = $this->fileService
+            ->fileUpload($request->file("image"), $pathToFolder, $request->name);
+
+        $boss = Boss::create([
+            ...$request->all(),
+            "image" => $image
+        ]);
+
+        return response()->json($boss);
     }
 
     /**
@@ -39,75 +69,44 @@ class BossController extends Controller
      */
     public function show(string $id)
     {
-        //
-    }
+        $boss = Boss::findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
+        return response()->json($boss);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateBossRequest $request, string $id)
     {
-        //
+        $boss = Boss::findOrFail($id);
+
+        if ($file = $request->file("image")) {
+            if (file_exists(public_path($boss->image))) unlink($boss->image);
+
+            $title = $request->input("name", $boss->name);
+            $fileName = $this->fileService->fileUpload($file, "images/bosses/", $title);
+        }
+
+        $boss->update([
+            ...$request->all(),
+            "image" => $fileName ?? $boss->image
+        ]);
+
+        return response()->json($boss);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function deleteBoss(Request $request)
+    public function destroy(string $id)
     {
+        $boss = Boss::findOrFail($id);
 
-    $boss = Boss::find("id", $request->get('id'));
+        if (file_exists(public_path($boss->image))) unlink($boss->image);
 
-    if ($boss) {
-        // Если фракция найдена, удалить её
         $boss->delete();
-        return response()->json(['message' => 'Босс успешно удален.'], 200);
-    } else {
-        // Если фракция не найдена, возвращаем сообщение об ошибке
-        return response()->json(['error' => 'Босс не найден.'], 404);
+
+        return response()->json(["message" => "Entry successfully deleted"]);
     }
-    }
-
-    public function createBoss(Request $request)
-    {
-        $credentials = $request->only('name','title', 'description');
-
-        $boss = Boss::create([]);
-    }
-
-    public function editBoss(Request $request)
-    {
-    if ($request->isMethod('put')) {
-
-        $validatedData = $request->validate([
-            'id' => 'required|integer',
-            'name' => 'required|string',
-            'title' => 'required|string',
-            'description' => 'required|string',
-        ]);
-
-        $boss = Boss::find($validatedData['id']);
-
-        if ($boss) {
-            $boss->update([
-                'name' => $validatedData['name'],
-                'title' => $validatedData['title'],
-                'description' => $validatedData['description'],
-            ]);
-            return response()->json(['message' => 'Босс успешно обновлен.', 'boss' => $boss], 200);
-        } else {
-            return response()->json(['error' => 'Босс не найден.'], 404);
-        }
-    } else {
-        return response()->json(['error' => 'Неверный метод запроса. Используйте метод PUT.'], 405);
-    }
-}
 }

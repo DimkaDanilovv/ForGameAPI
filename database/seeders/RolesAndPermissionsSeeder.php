@@ -16,39 +16,27 @@ class RolesAndPermissionsSeeder extends Seeder
     public function run(): void
     {
         // reset cached roles and permissions
-    app()[\Spatie\Permission\PermissionRegistrar::class]
-        ->forgetCachedPermissions();
+        app()[\Spatie\Permission\PermissionRegistrar::class]
+            ->forgetCachedPermissions();
 
-        // $readLocation = 'read location';
         $deleteLocation = 'delete location';
         $editLocation = 'edit location';
         $createLocation = 'create location';
-        // $sortingLocation = 'sorting location';
-        // $filtrateLocation = 'filtrate location';
         $viewLocation = 'view location';
 
-        // $readBoss = 'read boss';
         $deleteBoss = 'delete boss';
         $editBoss = 'edit boss';
         $createBoss = 'create boss';
-        // $sortingBoss = 'sorting boss';
-        // $filtrateBoss = 'filtrate boss';
         $viewBoss = 'view boss';
 
-        // $readFaction = 'read faction';
         $deleteFaction = 'delete faction';
         $editFaction = 'edit faction';
         $createFaction = 'create faction';
-        // $sortingFaction = 'sorting faction';
-        // $filtrateFaction = 'filtrate faction';
         $viewFaction = 'view faction';
 
-        // $readClass = 'read class';
         $deletePlayerClass = 'delete player_class';
         $editPlayerClass = 'edit player_class';
         $createPlayerClass = 'create player_class';
-        // $sortingClass = 'sorting class';
-        // $filtrateClass = 'filtrate class';
         $viewPlayerClass = 'view player_class';
 
         $addUser = 'add user';
@@ -80,10 +68,10 @@ class RolesAndPermissionsSeeder extends Seeder
         $moderator = 'moderator';
         $user = 'user';
 
-        Role::create(['name' => $admin]) 
+        Role::create(['name' => $admin])
             ->givePermissionTo(Permission::all());
 
-        Role::create(['name' => $moderator]) 
+        Role::create(['name' => $moderator])
             ->givePermissionTo([
                 $deleteLocation,
                 $editLocation,
@@ -104,7 +92,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
             ]);
 
-        Role::create(['name' => $user]) 
+        Role::create(['name' => $user])
             ->givePermissionTo([
                 $viewLocation,
                 $viewBoss,
