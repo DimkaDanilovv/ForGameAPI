@@ -26,23 +26,15 @@ class LocationController extends Controller
 
         if ($keyword = $request->search) {
             $locations->where(function ($query) use ($keyword) {
-                $query
-                    ->where("title", "like", "%$keyword%")
+                $query->where("title", "like", "%$keyword%")
                     ->orWhere("name", "like", "%$keyword%")
                     ->orWhere("description", "like", "%$keyword%");
             });
         }
 
-        $locations->orderBy(
-            $request->input("order", "title"),
-            $request->input("direction", "asc")
-        );
+        $locations->orderBy($request->input("order", "title"), $request->input("direction", "asc"));
 
-        $perPage = $request->input("per_page", 10);
-        $page = $request->input("page", 1);
-
-        $locations = $locations
-            ->paginate($perPage, ["*"], "page", $page);
+        $locations = $locations->get(); 
 
         return response()->json($locations);
     }

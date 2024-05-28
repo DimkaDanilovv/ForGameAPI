@@ -27,22 +27,15 @@ class BossController extends Controller
 
         if ($keyword = $request->search) {
             $bosses->where(function ($query) use ($keyword) {
-                $query
-                    ->where("title", "like", "%$keyword%")
+                $query->where("title", "like", "%$keyword%")
                     ->orWhere("name", "like", "%$keyword%")
                     ->orWhere("description", "like", "%$keyword%");
             });
         }
 
-        $bosses->orderBy(
-            $request->input("order", "title"),
-            $request->input("direction", "asc")
-        );
-
-        $perPage = $request->input("per_page", 10);
-        $page = $request->input("page", 1);
-
-        $bosses = $bosses->paginate($perPage, ["*"], "page", $page);
+        $bosses->orderBy($request->input("order", "title"), $request->input("direction", "asc"));
+        
+        $bosses = $bosses->get();
 
         return response()->json($bosses);
     }

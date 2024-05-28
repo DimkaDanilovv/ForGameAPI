@@ -19,27 +19,23 @@ class AdminUserController extends Controller
         $users = User::with("roles")->whereHas("roles", function ($query) {
             $query->where("name", "moderator");
         });
-
+    
         if ($keyword = $request->search) {
             $users->where(function ($query) use ($keyword) {
-                $query
-                    ->where("email", "like", "%$keyword%")
-                    ->orWhere("name", "like", "%$keyword%");
+                $query->where("email", "like", "%$keyword%")
+                      ->orWhere("name", "like", "%$keyword%");
             });
         }
-
-        $users->orderBy(
-            $request->input("order", "name"),
-            $request->input("direction", "asc")
-        );
-
-        $perPage = $request->input("per_page", 10);
-        $page = $request->input("page", 1);
-
-        $users = $users->paginate($perPage, ["*"], "page", $page);
-
-        if (!$users) throw new NotFoundHttpException("Users not found");
-
+    
+        $users->orderBy($request->input("order", "name"), 
+        $request->input("direction", "asc"));
+    
+        $users = $users->get(); 
+    
+        if ($users->isEmpty()) {
+            throw new NotFoundHttpException("Users not found");
+        }
+    
         return response()->json($users);
     }
 

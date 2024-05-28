@@ -26,23 +26,16 @@ class FactionController extends Controller
 
         if ($keyword = $request->search) {
             $factions->where(function ($query) use ($keyword) {
-                $query
-                    ->where("title", "like", "%$keyword%")
+                $query->where("title", "like", "%$keyword%")
                     ->orWhere("name", "like", "%$keyword%")
                     ->orWhere("description", "like", "%$keyword%");
             });
         }
 
-        $factions->orderBy(
-            $request->input("order", "title"),
-            $request->input("direction", "asc")
-        );
+        $factions->orderBy($request->input("order", "title"), 
+        $request->input("direction", "asc"));
 
-        $perPage = $request->input("per_page", 10);
-        $page = $request->input("page", 1);
-
-        $factions = $factions
-            ->paginate($perPage, ["*"], "page", $page);
+        $factions = $factions->get();
 
         return response()->json($factions);
     }
