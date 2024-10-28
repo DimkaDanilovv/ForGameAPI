@@ -12,7 +12,6 @@ class Boss extends Model
     protected $fillable = [
         'name',
         'title',
-        'description',
-        "image"
+        'description'
     ];
 }

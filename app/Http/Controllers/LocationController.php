@@ -2,57 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Location\GetLocationRequest;
-use App\Http\Requests\Location\StoreLocationRequest;
-use App\Http\Requests\Location\UpdateLocationRequest;
-use App\Http\Services\FileService;
+use Illuminate\Http\Request;
 use App\Models\Location;
 
 class LocationController extends Controller
 {
-    private $fileService;
-
-    public function __construct()
-    {
-        $this->fileService = new FileService();
-    }
-
     /**
      * Display a listing of the resource.
      */
-    public function index(GetLocationRequest $request)
+    public function viewLocation() //функция просмотра не готова
     {
-        $locations = Location::query();
-
-        if ($keyword = $request->search) {
-            $locations->where(function ($query) use ($keyword) {
-                $query->where("title", "like", "%$keyword%")
-                    ->orWhere("name", "like", "%$keyword%")
-                    ->orWhere("description", "like", "%$keyword%");
-            });
+        if (! $locations = Location::all()) {
+            throw new NotFoundHttpException('Locations not found');
         }
+        return $locations;
+    }
 
-        $locations->orderBy($request->input("order", "title"), $request->input("direction", "asc"));
-
-        $locations = $locations->get(); 
-
-        return response()->json($locations);
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreLocationRequest $request)
+    public function store(Request $request)
     {
-        $image = $this->fileService
-            ->fileUpload($request->file("image"), "images/locations/", $request->name);
-
-        $location = Location::create([
-            ...$request->all(),
-            "image" => $image
-        ]);
-
-        return response()->json($location);
+        //
     }
 
     /**
@@ -60,44 +39,78 @@ class LocationController extends Controller
      */
     public function show(string $id)
     {
-        $location = Location::findOrFail($id);
+        //
+    }
 
-        return response()->json($location);
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateLocationRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
-        $location = Location::findOrFail($id);
-
-        if ($file = $request->file("image")) {
-            if (file_exists(public_path($location->image))) unlink($location->image);
-
-            $title = $request->input("name", $location->name);
-            $fileName = $this->fileService->fileUpload($file, "images/locations/", $title);
-        }
-
-        $location->update([
-            ...$request->all(),
-            "image" => $fileName ?? $location->image
-        ]);
-
-        return response()->json($location);
+        //
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function deleteLocation(Request $request)
     {
-        $location = Location::findOrFail($id);
 
-        if (file_exists(public_path($location->image))) unlink($location->image);
+    $location = Location::find("id", $request->get('id'));
 
+    if ($location) {
+        // Если фракция найдена, удалить её
         $location->delete();
-
-        return response()->json(["message" => "Entry successfully deleted"]);
+        return response()->json(['message' => 'Локация успешно удалена.'], 200);
+    } else {
+        // Если фракция не найдена, возвращаем сообщение об ошибке
+        return response()->json(['error' => 'Локация не найдена.'], 404);
     }
+    }
+
+    public function createLocation(Request $request)
+    {
+        $credentials = $request->only('name','title', 'description');
+
+        $location = Location::create([]);
+    }
+
+    public function editLocation(Request $request)
+    {
+    if ($request->isMethod('put')) {
+
+        $validatedData = $request->validate([
+            'id' => 'required|integer',
+            'name' => 'required|string',
+            'title' => 'required|string',
+            'description' => 'required|string',
+        ]);
+
+        $location = Location::find($validatedData['id']);
+
+        if ($location) {
+            $location->update([
+                'name' => $validatedData['name'],
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+            ]);
+            return response()->json(['message' => 'Локация успешно обновлена.', 'location' => $location], 200);
+        } else {
+            return response()->json(['error' => 'Локация не найдена.'], 404);
+        }
+    } else {
+        return response()->json(['error' => 'Неверный метод запроса. Используйте метод PUT.'], 405);
+    }
+}
 }

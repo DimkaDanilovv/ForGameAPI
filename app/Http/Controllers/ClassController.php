@@ -2,58 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Classes\GetClassesRequest;
-use App\Http\Requests\Classes\StoreClassesRequest;
-use App\Http\Requests\Classes\UpdateClassesRequest;
-use App\Http\Services\FileService;
+use Illuminate\Http\Request;
 use App\Models\PlayerClass;
 
 class ClassController extends Controller
 {
-    private $fileService;
-
-    public function __construct()
-    {
-        $this->fileService = new FileService();
-    }
-
     /**
      * Display a listing of the resource.
      */
-    public function index(GetClassesRequest $request)
+    public function viewPlayerClass() //функция просмотра не готова
     {
-        $playerClasses = PlayerClass::query();
-
-        if ($keyword = $request->search) {
-            $playerClasses->where(function ($query) use ($keyword) {
-                $query->where("title", "like", "%$keyword%")
-                    ->orWhere("name", "like", "%$keyword%")
-                    ->orWhere("description", "like", "%$keyword%");
-            });
+        if (! $PlayerClasses = PlayerClass::all()) {
+            throw new NotFoundHttpException('Classes not found');
         }
+        return $PlayerClasses;
+    }
 
-        $playerClasses->orderBy($request->input("order", "title"), 
-        $request->input("direction", "asc"));
-
-        $playerClasses = $playerClasses->get();
-
-        return response()->json($playerClasses);
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClassesRequest $request)
+    public function store(Request $request)
     {
-        $image = $this->fileService
-            ->fileUpload($request->file("image"), "images/classes/", $request->name);
-
-        $playerClass = PlayerClass::create([
-            ...$request->all(),
-            "image" => $image
-        ]);
-
-        return response()->json($playerClass);
+        //
     }
 
     /**
@@ -61,44 +39,73 @@ class ClassController extends Controller
      */
     public function show(string $id)
     {
-        $playerClass = PlayerClass::findOrFail($id);
+        //
+    }
 
-        return response()->json($playerClass);
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateClassesRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
-        $playerClass = PlayerClass::findOrFail($id);
+        //
+    }
 
-        if ($file = $request->file("image")) {
-            if (file_exists(public_path($playerClass->image))) unlink($playerClass->image);
+    public function deletePlayerClass(Request $request)
+    {
 
-            $title = $request->input("name", $playerClass->name);
-            $fileName = $this->fileService->fileUpload($file, "images/classes/", $title);
-        }
+    $PlayerClass = PlayerClass::find("id", $request->get('id'));
 
-        $playerClass->update([
-            ...$request->all(),
-            "image" => $fileName ?? $playerClass->image
+    if ($PlayerClass) {
+        // Если фракция найдена, удалить её
+        $PlayerClass->delete();
+        return response()->json(['message' => 'Класс успешн удален.'], 200);
+    } else {
+        // Если фракция не найдена, возвращаем сообщение об ошибке
+        return response()->json(['error' => 'Класс не найден.'], 404);
+    }
+    }
+
+    public function createPlayerClass(Request $request)
+    {
+        $credentials = $request->only('name','title', 'description');
+
+        $PlayerClass = PlayerClass::create([]);
+    }
+
+    public function editPlayerClass(Request $request)
+    {
+    if ($request->isMethod('put')) {
+
+        $validatedData = $request->validate([
+            'id' => 'required|integer',
+            'name' => 'required|string',
+            'title' => 'required|string',
+            'description' => 'required|string',
         ]);
 
-        return response()->json($playerClass);
+        $PlayerClass = PlayerClass::find($validatedData['id']);
+
+        if ($PlayerClass) {
+            $PlayerClass->update([
+                'name' => $validatedData['name'],
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+            ]);
+            return response()->json(['message' => 'Класс успешно обновлен.', 'PlayerClass' => $PlayerClass], 200);
+        } else {
+            return response()->json(['error' => 'Класс не найден.'], 404);
+        }
+    } else {
+        return response()->json(['error' => 'Неверный метод запроса. Используйте метод PUT.'], 405);
     }
+}
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        $playerClass = PlayerClass::findOrFail($id);
-
-        if (file_exists(public_path($playerClass->image))) unlink($playerClass->image);
-
-        $playerClass->delete();
-
-        return response()->json(["message" => "Entry successfully deleted"]);
-    }
 }

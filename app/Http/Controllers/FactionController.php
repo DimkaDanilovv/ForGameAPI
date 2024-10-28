@@ -2,58 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\Faction\GetFactionRequest;
-use App\Http\Requests\Faction\StoreFactionRequest;
-use App\Http\Requests\Faction\UpdateFactionRequest;
-use App\Http\Services\FileService;
+use Illuminate\Http\Request;
 use App\Models\Faction;
 
 class FactionController extends Controller
 {
-    private $fileService;
-
-    public function __construct()
-    {
-        $this->fileService = new FileService();
-    }
-
     /**
      * Display a listing of the resource.
      */
-    public function index(GetFactionRequest $request)
+    public function viewFaction() //функция просмотра не готова
     {
-        $factions = Faction::query();
-
-        if ($keyword = $request->search) {
-            $factions->where(function ($query) use ($keyword) {
-                $query->where("title", "like", "%$keyword%")
-                    ->orWhere("name", "like", "%$keyword%")
-                    ->orWhere("description", "like", "%$keyword%");
-            });
+        if (! $factions = Faction::all()) {
+            throw new NotFoundHttpException('Factions not found');
         }
+        return $factions;
+    }
 
-        $factions->orderBy($request->input("order", "title"), 
-        $request->input("direction", "asc"));
-
-        $factions = $factions->get();
-
-        return response()->json($factions);
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreFactionRequest $request)
+    public function store(Request $request)
     {
-        $image = $this->fileService
-            ->fileUpload($request->file("image"), "images/factions/", $request->name);
-
-        $faction = Faction::create([
-            ...$request->all(),
-            "image" => $image
-        ]);
-
-        return response()->json($faction);
+        //
     }
 
     /**
@@ -61,44 +39,76 @@ class FactionController extends Controller
      */
     public function show(string $id)
     {
-        $faction = Faction::findOrFail($id);
+        //
+    }
 
-        return response()->json($faction);
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFactionRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
-        $faction = Faction::findOrFail($id);
-
-        if ($file = $request->file("image")) {
-            if (file_exists(public_path($faction->image))) unlink($faction->image);
-
-            $title = $request->input("name", $faction->name);
-            $fileName = $this->fileService->fileUpload($file, "images/factions/", $title);
-        }
-
-        $faction->update([
-            ...$request->all(),
-            "image" => $fileName ?? $faction->image
-        ]);
-
-        return response()->json($faction);
+        //
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function deleteFaction(Request $request)
     {
-        $factions = Faction::findOrFail($id);
 
-        if (file_exists(public_path($factions->image))) unlink($factions->image);
+    $faction = Faction::find("id", $request->get('id'));
 
-        $factions->delete();
-
-        return response()->json(["message" => "Entry successfully deleted"]);
+    if ($faction) {
+        // Если фракция найдена, удалить её
+        $faction->delete();
+        return response()->json(['message' => 'Фракция успешно удалена.'], 200);
+    } else {
+        // Если фракция не найдена, возвращаем сообщение об ошибке
+        return response()->json(['error' => 'Фракция не найдена.'], 404);
     }
+    }
+
+    public function createFaction(Request $request)
+    {
+        $credentials = $request->only('name','title', 'description');
+
+        $faction = Faction::create([]);
+    }
+
+    public function editFaction(Request $request)
+    {
+    if ($request->isMethod('put')) {
+
+        $validatedData = $request->validate([
+            'id' => 'required|integer',
+            'name' => 'required|string',
+            'title' => 'required|string',
+            'description' => 'required|string',
+        ]);
+
+        $faction = Faction::find($validatedData['id']);
+
+        if ($faction) {
+            $faction->update([
+                'name' => $validatedData['name'],
+                'title' => $validatedData['title'],
+                'description' => $validatedData['description'],
+            ]);
+            return response()->json(['message' => 'Фракция успешно обновлена.', 'faction' => $faction], 200);
+        } else {
+            return response()->json(['error' => 'Фракция не найдена.'], 404);
+        }
+    } else {
+        return response()->json(['error' => 'Неверный метод запроса. Используйте метод PUT.'], 405);
+    }
+}
+
 }

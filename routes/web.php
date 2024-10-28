@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::middleware(["throttle:3,1"])->group(function () {
+    Route::get('/', function () {
+        return view('welcome');
+    });  
+
+    // Route::resource('messages', 'MessageController');
 });

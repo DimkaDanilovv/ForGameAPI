@@ -13,6 +13,11 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // \App\Models\User::factory()->create([
+        //     'name' => 'Test User',
+        //     'email' => 'test@example.com',
+        //     'password' => 'example'
+        // ]);
         User::factory()->count(1)
             ->create()
             ->each(
@@ -20,48 +25,19 @@ class UserSeeder extends Seeder
                     $user->assignRole('admin');
                 }
             );
-        User::factory()->count(1)
+        User::factory()->count(2)
             ->create()
             ->each(
                 function($user) {
                     $user->assignRole('moderator');
                 }
             );
-        User::factory()->count(1)
+        User::factory()->count(3)
             ->create()
             ->each(
                 function($user) {
                     $user->assignRole('user');
                 }
             );
-
-
-            $user = User::factory()->create([
-            'name' => 'User',
-            'email' => 'user1234@example.com',
-            'password' => 'user1234'
-            
-        ]);
-
-        $user->assignRole("user");
-
-        $user = User::factory()->create([
-            'name' => 'Moderator',
-            'email' => 'moderator1234@example.com',
-            'password' => 'moderator1234'
-            
-        ]);
-
-        $user->assignRole("moderator");
-
-        $user = User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin1234@example.com',
-            'password' => 'admin1234'
-            
-        ]);
-
-        $user->assignRole("admin");
-
     }
 }

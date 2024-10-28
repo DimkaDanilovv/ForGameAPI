@@ -3,52 +3,41 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\User\GetUserRequest;
-use App\Http\Requests\User\StoreUserRequest;
-use App\Http\Requests\User\UpdateUserRequest;
+use Illuminate\Http\Request;
 use App\Models\User;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class AdminUserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(GetUserRequest $request)
+    public function index()
     {
-        $users = User::with("roles")->whereHas("roles", function ($query) {
-            $query->where("name", "moderator");
-        });
-    
-        if ($keyword = $request->search) {
-            $users->where(function ($query) use ($keyword) {
-                $query->where("email", "like", "%$keyword%")
-                      ->orWhere("name", "like", "%$keyword%");
-            });
+        if (! $users = User::all()) {
+            throw new NotFoundHttpException('Users not found');
         }
-    
-        $users->orderBy($request->input("order", "name"), 
-        $request->input("direction", "asc"));
-    
-        $users = $users->get(); 
-    
-        if ($users->isEmpty()) {
-            throw new NotFoundHttpException("Users not found");
-        }
-    
-        return response()->json($users);
+        return $users;
     }
 
     /**
-     * Store a newly created resource in storage./
+     * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request)
+    public function store(Request $request)
     {
-        $user = User::create($request->all());
-        $user->assignRole("moderator");
-        $user->roles = $user->roles()->get();
+        //
+    }
 
-        return response()->json($user);
+    public function addUser(Request $request)
+    {
+        $credentials = $request->only('name','email', 'password');
+
+        $addUser = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        $user->assignRole("moderator");
     }
 
     /**
@@ -56,21 +45,15 @@ class AdminUserController extends Controller
      */
     public function show(string $id)
     {
-        $user = User::with("roles")->findOrFail($id);
-
-        return response()->json($user);
+        //
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, string $id)
+    public function update(Request $request, string $id)
     {
-        $user = User::findOrFail($id);
-        $user->update($request->all());
-        $user->roles = $user->roles()->get();
-
-        return response()->json($user);
+        //
     }
 
     /**
@@ -78,9 +61,6 @@ class AdminUserController extends Controller
      */
     public function destroy(string $id)
     {
-        $user = User::findOrFail($id);
-        $user->delete();
-
-        return response()->json(["message" => "Moderator successfully deleted"]);
+        //
     }
 }

@@ -12,8 +12,7 @@ class Faction extends Model
     protected $fillable = [
         'name',
         'title',
-        'description',
-        "image"
+        'description'
     ];
 
 }
